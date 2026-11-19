@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VeriStudy IA — Aprende con Fuentes Verificadas</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    /* Animaciones suaves */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.35s ease-out forwards;
+    }
+
+    /* Tarjetas giratorias (Flip Cards) para conceptos clave */
+    .flip-card {
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Medidor semicircular SVG */
+    .gauge-arc {
+      transition: stroke-dashoffset 1.2s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.5s ease;
+    }
+
+    /* Ocultar scrollbar en navegación móvil horizontal */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+  <!-- Toast / Notificación flotante (reemplaza alert) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Cabecera Principal -->
+  <header class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Logo y Nombre -->
+        <div class="flex items-center justify-between">
+          <button onclick="resetToHome()" class="flex items-center gap-3 text-left group focus:outline-none">
+            <!-- Logotipo SVG Oficial de VeriStudy IA -->
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-emerald-400 p-[2px] shadow-md group-hover:scale-105 transition-transform shrink-0">
+              <div class="w-full h-full rounded-[14px] bg-indigo-950/90 backdrop-blur-sm flex items-center justify-center">
+                <svg class="w-7 h-7" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo VeriStudy IA">
+                  <!-- Escudo de verificación -->
+                  <path d="M20 4L7 9.5V19.5C7 27.8 12.5 35.3 20 37.5C27.5 35.3 33 27.8 33 19.5V9.5L20 4Z" fill="url(#shieldGrad)" fill-opacity="0.22" stroke="url(#shieldGrad)" stroke-width="2.4" stroke-linejoin="round"/>
+                  <!-- Libro abierto / Birrete estilizado -->
+                  <path d="M13.5 18.5C15.5 17.3 18 17.3 20 18.7C22 17.3 24.5 17.3 26.5 18.5V25.5C24.5 24.4 22 24.4 20 25.7C18 24.4 15.5 24.4 13.5 25.5V18.5Z" stroke="#E0E7FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Check de fuente verificada -->
+                  <path d="M16.5 13.5L19 16L24.5 10.5" stroke="#34D399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Destello IA -->
+                  <circle cx="29.5" cy="10.5" r="2" fill="#FBBF24"/>
+                  <defs>
+                    <linearGradient id="shieldGrad" x1="7" y1="4" x2="33" y2="37.5" gradientUnits="userSpaceOnUse">
+                      <stop stop-color="#818CF8"/>
+                      <stop offset="0.5" stop-color="#C084FC"/>
+                      <stop offset="1" stop-color="#34D399"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xl font-extrabold tracking-tight">VeriStudy <span class="text-emerald-300">IA</span></span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30">Proyecto Escolar</span>
+              </div>
+              <p class="text-xs sm:text-sm text-indigo-100/90 font-medium mt-0.5">
+                “Busca en fuentes reales, repasa con IA y comprueba cuánto sabes de verdad.”
+              </p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Indicador rápido de tema activo -->
+        <div class="flex items-center gap-2 self-start md:self-auto">
+          <button onclick="openApiKeyModal()" title="Configurar API Key opcional de Gemini" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/15 px-3 py-1.5 rounded-xl text-xs font-medium text-indigo-100 transition">
+            <i data-lucide="key-round" class="w-3.5 h-3.5 text-amber-300"></i>
+            <span id="api-key-status-label">API IA (Opcional)</span>
+          </button>
+
+          <div id="header-topic-badge" class="hidden items-center gap-2 bg-white/10 border border-white/15 px-3 py-1.5 rounded-xl text-xs sm:text-sm">
+            <span class="text-indigo-200">Tema:</span>
+            <strong id="header-topic-name" class="text-white font-semibold truncate max-w-[140px] sm:max-w-[200px]">-</strong>
+            <button onclick="focusSearch()" title="Cambiar tema" class="ml-1 p-1 rounded-lg hover:bg-white/15 text-indigo-200 hover:text-white transition">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de Navegación de 4 Pasos (Visible al iniciar un tema) -->
+    <nav id="steps-nav" class="hidden bg-indigo-950/80 border-t border-white/10">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6">
+        <div class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-2.5">
+          <button onclick="goToStep(1)" id="nav-step-1" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-white text-indigo-900 shadow-sm">
+            <span class="w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] flex items-center justify-center font-bold">1</span>
+            <span>Fuentes Verificadas</span>
+          </button>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <button onclick="goToStep(2)" id="nav-step-2" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition text-indigo-200 hover:bg-white/10">
+            <span class="w-5 h-5 rounded-full bg-white/15 text-white text-[11px] flex items-center justify-center font-bold">2</span>
+            <span>Repaso IA</span>
+          </button>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <button onclick="goToStep(3)" id="nav-step-3" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition text-indigo-200 hover:bg-white/10">
+            <span class="w-5 h-5 rounded-full bg-white/15 text-white text-[11px] flex items-center justify-center font-bold">3</span>
+            <span>Práctica Rápida</span>
+          </button>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <button onclick="goToStep(4)" id="nav-step-4" class="step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition text-indigo-200 hover:bg-white/10">
+            <span class="w-5 h-5 rounded-full bg-white/15 text-white text-[11px] flex items-center justify-center font-bold">4</span>
+            <span>Test y Nivel</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+
+    <!-- Portada Visual de Bienvenida (Hero Banner con Identidad del Sitio) -->
+    <section id="hero-cover" class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white shadow-xl border border-indigo-800/60 p-6 sm:p-10">
+      <!-- Decoración de fondo -->
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Columna izquierda: Identidad y Lema -->
+        <div class="lg:col-span-7 space-y-4 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 text-emerald-300 text-xs font-semibold tracking-wide">
+            <i data-lucide="award" class="w-4 h-4"></i>
+            <span>Innovación Educativa · Internet + Inteligencia Artificial</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
+            Estudia con <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-200 to-emerald-300">fuentes reales</span> y mide tu aprendizaje
+          </h1>
+
+          <p class="text-sm sm:text-base text-indigo-100/85 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <strong>VeriStudy IA</strong> transforma cualquier búsqueda escolar en una ruta de estudio verificada: consulta información confiable, repasa con tarjetas inteligentes y comprueba tu nivel real de comprensión.
+          </p>
+
+          <!-- Flujo visual de 3 pilares -->
+          <div class="grid grid-cols-3 gap-2.5 sm:gap-3 pt-2 max-w-xl mx-auto lg:mx-0">
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-3 text-left">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5">
+                <i data-lucide="search-check" class="w-4 h-4"></i>
+              </div>
+              <p class="text-xs font-bold text-white">1. Verifica</p>
+              <p class="text-[11px] text-indigo-200/80 leading-tight mt-0.5">Fuentes académicas reales</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-3 text-left">
+              <div class="w-7 h-7 rounded-lg bg-indigo-500/30 text-indigo-200 flex items-center justify-center mb-1.5">
+                <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+              </div>
+              <p class="text-xs font-bold text-white">2. Repasa</p>
+              <p class="text-[11px] text-indigo-200/80 leading-tight mt-0.5">Tarjetas y práctica IA</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl p-3 text-left">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center mb-1.5">
+                <i data-lucide="gauge" class="w-4 h-4"></i>
+              </div>
+              <p class="text-xs font-bold text-white">3. Comprueba</p>
+              <p class="text-[11px] text-indigo-200/80 leading-tight mt-0.5">Indicador de dominio</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna derecha: Emblema / Tarjeta Ilustrativa de Portada -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="w-full max-w-sm bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-400/20 border border-emerald-300/30 flex items-center justify-center">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-emerald-300"></i>
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-white">VeriStudy IA</p>
+                  <p class="text-[11px] text-emerald-300 font-medium">● Fuentes Verificadas Activas</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-[11px] font-semibold">v2.0</span>
+            </div>
+
+            <!-- Vista previa visual de un indicador de aprendizaje -->
+            <div class="bg-slate-950/50 rounded-2xl p-4 border border-white/10 space-y-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-indigo-200">Nivel de Comprensión</span>
+                <span class="font-bold text-emerald-300">92% · Dominio Sólido</span>
+              </div>
+              <div class="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full w-[92%] bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 rounded-full"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                <div class="bg-white/5 rounded-xl p-2 flex items-center gap-2">
+                  <i data-lucide="book-open-check" class="w-4 h-4 text-indigo-300 shrink-0"></i>
+                  <span class="text-indigo-100">4 Flashcards IA</span>
+                </div>
+                <div class="bg-white/5 rounded-xl p-2 flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-300 shrink-0"></i>
+                  <span class="text-indigo-100">Test Evaluado</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-center text-xs italic text-indigo-200/90">
+              “Busca en fuentes reales, repasa con IA y comprueba cuánto sabes de verdad.”
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buscador Principal -->
+    <section id="search-section" class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7 transition-all">
+      <div class="max-w-3xl mx-auto text-center space-y-2 mb-5">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Buscador Académico + Evaluación Inteligente
+        </span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+          ¿Qué tema escolar quieres investigar y dominar hoy?
+        </h2>
+        <p class="text-sm text-slate-500">
+          Escribe cualquier materia o concepto para generar su guía de repaso, práctica y test de comprensión.
+        </p>
+      </div>
+
+      <!-- Formulario de Búsqueda -->
+      <form onsubmit="handleSearchSubmit(event)" class="max-w-3xl mx-auto">
+        <div class="relative flex flex-col sm:flex-row gap-2.5">
+          <div class="relative flex-1">
+            <i data-lucide="search" class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="text"
+              id="topic-input"
+              placeholder="Ej. Sistema Solar, Revolución Francesa, Célula animal, Fotosíntesis..."
+              class="w-full pl-12 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition text-sm sm:text-base"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              id="clear-input-btn"
+              onclick="clearSearchInput()"
+              class="hidden absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+              title="Limpiar búsqueda"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <button
+            type="submit"
+            id="search-submit-btn"
+            class="px-6 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.99] text-white font-semibold rounded-xl shadow-sm hover:shadow transition flex items-center justify-center gap-2 text-sm sm:text-base shrink-0"
+          >
+            <i data-lucide="compass" class="w-5 h-5"></i>
+            <span>Investigar Tema</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Temas Rápidos Sugeridos -->
+      <div class="max-w-3xl mx-auto mt-4 pt-4 border-t border-slate-100">
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2.5 text-center sm:text-left">
+          Temas rápidos de ejemplo (1 clic):
+        </p>
+        <div class="flex flex-wrap justify-center sm:justify-start gap-2">
+          <button type="button" onclick="selectQuickTopic('Fotosíntesis')" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/70 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+            <span>🌱</span> Fotosíntesis
+          </button>
+          <button type="button" onclick="selectQuickTopic('Segunda Guerra Mundial')" class="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/70 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+            <span>🌍</span> Segunda Guerra Mundial
+          </button>
+          <button type="button" onclick="selectQuickTopic('Leyes de Newton')" class="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200/70 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+            <span>🚀</span> Leyes de Newton
+          </button>
+          <button type="button" onclick="selectQuickTopic('Partida Doble en Contabilidad')" class="px-3 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200/70 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+            <span>📊</span> Partida Doble en Contabilidad
+          </button>
+          <button type="button" onclick="selectQuickTopic('Grupos Sanguíneos ABO y Rh')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/70 text-xs sm:text-sm font-medium transition flex items-center gap-1.5">
+            <span>🩸</span> Grupos Sanguíneos ABO y Rh
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estado de Carga -->
+    <section id="loading-section" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-10 text-center space-y-4 animate-fade-in">
+      <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center animate-pulse">
+        <i data-lucide="loader-2" class="w-8 h-8 animate-spin"></i>
+      </div>
+      <div class="space-y-1">
+        <h3 id="loading-title" class="text-lg font-bold text-slate-900">Consultando fuentes verificadas...</h3>
+        <p id="loading-subtitle" class="text-sm text-slate-500">Extrayendo conceptos clave y preparando tu ruta de estudio con IA.</p>
+      </div>
+    </section>
+
+    <!-- Contenedor Dinámico de los 4 Pasos -->
+    <div id="workspace-container" class="hidden space-y-6 animate-fade-in">
+
+      <!-- PASO 1: Fuentes Verificadas -->
+      <section id="step-1" class="step-panel space-y-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-5">
+            <div>
+              <div class="flex items-center gap-2 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-1">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span id="source-engine-badge">Información Contrastada</span>
+              </div>
+              <h2 id="topic-main-title" class="text-2xl font-extrabold text-slate-900">Título del Tema</h2>
+            </div>
+            <button onclick="goToStep(2)" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 self-start sm:self-auto">
+              <span>Ir a Repaso IA</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div class="bg-slate-50 rounded-xl p-4 sm:p-5 border border-slate-200/60">
+              <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i> Síntesis Verificada del Tema
+              </h3>
+              <p id="topic-overview" class="text-slate-700 text-sm sm:text-base leading-relaxed"></p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i data-lucide="link" class="w-4 h-4 text-emerald-600"></i> Fuentes Consultadas y Respaldo
+              </h3>
+              <div id="sources-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 2: Repaso Inteligente con IA -->
+      <section id="step-2" class="step-panel hidden space-y-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Paso 2 · Síntesis Activa</span>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Repaso Guiado y Conceptos Clave</h2>
+            </div>
+            <button onclick="goToStep(3)" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 self-start sm:self-auto">
+              <span>Practicar Ahora</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Puntos clave -->
+          <div>
+            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+              <i data-lucide="list-checks" class="w-4 h-4 text-indigo-600"></i> Puntos Esenciales para Recordar
+            </h3>
+            <ul id="key-points-list" class="space-y-2.5"></ul>
+          </div>
+
+          <!-- Tarjetas Giratorias (Flip Cards) -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-purple-600"></i> Tarjetas de Memoria (Toca para girar)
+              </h3>
+              <span class="text-xs text-slate-400">4 conceptos clave</span>
+            </div>
+            <div id="flashcards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+          </div>
+
+          <!-- Ejemplo aplicado -->
+          <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 sm:p-5 flex gap-3.5 items-start">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="lightbulb" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-amber-900">Aplicación en la Vida Real</h4>
+              <p id="real-world-example" class="text-sm text-amber-800/90 mt-1 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 3: Práctica Rápida -->
+      <section id="step-3" class="step-panel hidden space-y-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Paso 3 · Entrenamiento</span>
+              <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Cuestionario de Práctica Rápida</h2>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Responde estas 3 preguntas de calentamiento con retroalimentación inmediata.</p>
+            </div>
+            <button onclick="goToStep(4)" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm transition flex items-center justify-center gap-2 self-start sm:self-auto">
+              <span>Ir al Test Final</span>
+              <i data-lucide="award" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div id="practice-questions-container" class="space-y-5"></div>
+        </div>
+      </section>
+
+      <!-- PASO 4: Test de Comprensión e Indicador Visual -->
+      <section id="step-4" class="step-panel hidden space-y-5">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-5 sm:p-7 space-y-6">
+          <div class="border-b border-slate-100 pb-4">
+            <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Paso 4 · Evaluación Objetiva</span>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Test de Comprensión e Indicador de Nivel</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Completa las 5 preguntas para calcular tu porcentaje de entendimiento sobre el tema.</p>
+          </div>
+
+          <!-- Formulario del Test -->
+          <div id="test-questions-container" class="space-y-5"></div>
+
+          <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onclick="resetTest()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition">
+              Reiniciar Test
+            </button>
+            <button type="button" onclick="evaluateTest()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md transition flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-5 h-5"></i>
+              <span>Calcular Mi Nivel de Entendimiento</span>
+            </button>
+          </div>
+
+          <!-- Panel de Resultados e Indicador Semicircular -->
+          <div id="test-results-panel" class="hidden pt-6 border-t border-slate-200 space-y-6 animate-fade-in">
+            <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              <!-- Medidor Semicircular -->
+              <div class="md:col-span-5 flex flex-col items-center justify-center">
+                <svg class="w-48 h-28 overflow-visible" viewBox="0 0 200 110">
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="16" stroke-linecap="round"/>
+                  <path id="gauge-progress" class="gauge-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#34d399" stroke-width="16" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+                </svg>
+                <div class="-mt-10 text-center">
+                  <span id="score-percentage" class="text-4xl font-extrabold tracking-tight">0%</span>
+                  <p class="text-xs text-indigo-200 uppercase tracking-wider font-semibold mt-0.5">Comprensión</p>
+                </div>
+              </div>
+
+              <!-- Diagnóstico y Recomendaciones -->
+              <div class="md:col-span-7 space-y-3 text-center md:text-left">
+                <span id="level-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                  Nivel
+                </span>
+                <h3 id="level-title" class="text-xl sm:text-2xl font-extrabold">Diagnóstico de Aprendizaje</h3>
+                <p id="level-description" class="text-sm text-indigo-100/90 leading-relaxed"></p>
+                <div id="reinforce-box" class="bg-white/10 rounded-xl p-3.5 text-xs text-indigo-100 space-y-1">
+                  <p class="font-bold text-amber-300">Subtemas sugeridos para reforzar:</p>
+                  <p id="reinforce-topics">Ninguno, ¡excelente dominio!</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desglose pregunta por pregunta -->
+            <div class="space-y-3">
+              <h4 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Desglose Pedagógico de Respuestas</h4>
+              <div id="test-breakdown-list" class="space-y-2.5"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Pie de Página con Nota Aclaratoria Escolar -->
+  <footer class="bg-white border-t border-slate-200/80 mt-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2 font-semibold text-slate-700">
+        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i>
+        <span>VeriStudy IA · Plataforma Educativa</span>
+      </div>
+      <p class="text-center sm:text-right">
+        Prototipo educativo creado para un proyecto escolar. No está afiliado ni respaldado oficialmente por Google.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Modal Opcional para API Key de Gemini -->
+  <div id="api-key-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-fade-in">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="key-round" class="w-5 h-5 text-indigo-600"></i> Configurar Gemini IA (Opcional)
+        </h3>
+        <button onclick="closeApiKeyModal()" class="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        Sin clave, <strong>VeriStudy IA</strong> ya funciona con su banco académico y consultas en vivo a Wikipedia en español. Si deseas activar generación avanzada con Gemini, pega tu clave aquí (se guarda solo en tu navegador).
+      </p>
+      <input
+        type="password"
+        id="gemini-api-key-input"
+        placeholder="AIzaSy..."
+        class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="clearApiKey()" class="px-3.5 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition">
+          Borrar Clave
+        </button>
+        <button type="button" onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl transition">
+          Guardar en Navegador
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Clave vacía por seguridad al subir a repositorios públicos (ej. GitHub)
+    const apiKey = "";
+
+    let currentTopicData = null;
+    let currentStep = 1;
+    let userTestAnswers = {};
+
+    // Banco de temas rápidos precargados
+    const QUICK_TOPICS_DB = {
+      "Fotosíntesis": {
+        title: "Fotosíntesis",
+        engine: "Banco Académico Verificado",
+        overview: "La fotosíntesis es el proceso bioquímico mediante el cual las plantas, algas y ciertas bacterias transforman la energía lumínica del Sol en energía química estable (glucosa), utilizando dióxido de carbono (CO₂) y agua (H₂O), y liberando oxígeno (O₂) como subproducto esencial para la vida en la Tierra.",
+        sources: [
+          { title: "Enciclopedia de Biología Vegetal — Proceso Fotosintético", domain: "biologia-academica.edu", type: "Referencia Académica", snippet: "Ocurre principalmente en los cloroplastos de las hojas gracias a la clorofila." },
+          { title: "Fisiología Vegetal Básica — Fase Luminosa y Ciclo de Calvin", domain: "cienciasnaturales.org", type: "Guía Educativa", snippet: "Divide el proceso en reacciones dependientes de la luz y fijación del carbono." }
+        ],
+        keyPoints: [
+          "Se realiza en los cloroplastos, orgánulos que contienen el pigmento verde llamado clorofila.",
+          "Requiere tres elementos básicos: luz solar, agua absorbida por las raíces y dióxido de carbono del aire.",
+          "Consta de dos etapas: la fase luminosa (en los tilacoides) y la fase oscura o Ciclo de Calvin (en el estroma).",
+          "Produce glucosa (alimento para la planta) y libera oxígeno indispensable para la respiración de los seres vivos."
+        ],
+        flashcards: [
+          { front: "Clorofila", back: "Pigmento verde ubicado en los cloroplastos encargado de capturar la energía de la luz solar." },
+          { front: "Fase Luminosa", back: "Primera etapa que convierte la energía solar en ATP y NADPH, liberando oxígeno a partir del agua." },
+          { front: "Ciclo de Calvin", back: "Segunda etapa donde se utiliza el CO₂ y la energía química para fabricar glucosa." },
+          { front: "Estomas", back: "Poros microscópicos en las hojas por donde entra el dióxido de carbono y sale el oxígeno." }
+        ],
+        example: "Cuando una planta en tu ventana recibe luz del sol y la riegas con agua, sus hojas absorben el CO₂ del ambiente y fabrican su propio alimento mientras purifican el aire de la habitación.",
+        practice: [
+          {
+            question: "¿En qué orgánulo celular ocurre la fotosíntesis?",
+            options: ["Mitocondria", "Cloroplasto", "Ribosoma"],
+            correct: 1,
+            explanation: "Los cloroplastos contienen clorofila y toda la maquinaria enzimática para realizar la fotosíntesis."
+          },
+          {
+            question: "¿Qué gas liberan las plantas al ambiente como resultado de la fotosíntesis?",
+            options: ["Dióxido de carbono", "Nitrógeno", "Oxígeno"],
+            correct: 2,
+            explanation: "El oxígeno se libera al romperse las moléculas de agua durante la fase luminosa."
+          },
+          {
+            question: "¿Cuál es la fuente principal de energía que impulsa la fotosíntesis?",
+            options: ["La luz solar", "El calor del suelo", "La electricidad atmosférica"],
+            correct: 0,
+            explanation: "La energía lumínica del Sol es captada por la clorofila para iniciar las reacciones químicas."
+          }
+        ],
+        test: [
+          {
+            subtopic: "Reactivos y productos",
+            question: "¿Cuál de las siguientes combinaciones representa los reactivos necesarios para la fotosíntesis?",
+            options: ["Glucosa y oxígeno", "Agua, dióxido de carbono y luz solar", "Oxígeno y sales minerales"],
+            correct: 1,
+            explanation: "La planta necesita H₂O, CO₂ y energía lumínica para sintetizar glucosa y liberar O₂."
+          },
+          {
+            subtopic: "Pigmentos fotosintéticos",
+            question: "¿Qué función cumple la clorofila en las hojas?",
+            options: ["Absorber agua desde el suelo", "Capturar la energía de la luz solar", "Transportar nutrientes al tallo"],
+            correct: 1,
+            explanation: "La clorofila absorbe principalmente luz roja y azul para activar el transporte de electrones."
+          },
+          {
+            subtopic: "Etapas de la fotosíntesis",
+            question: "¿Qué ocurre durante el Ciclo de Calvin?",
+            options: ["Se fija el CO₂ para producir glucosa", "Se rompe la molécula de agua", "Se absorbe luz ultravioleta"],
+            correct: 0,
+            explanation: "El Ciclo de Calvin utiliza ATP y NADPH para convertir el dióxido de carbono en azúcares."
+          },
+          {
+            subtopic: "Intercambio gaseoso",
+            question: "¿A través de qué estructuras entra el dióxido de carbono a la hoja?",
+            options: ["Raíces secundarias", "Estomas", "Xilema"],
+            correct: 1,
+            explanation: "Los estomas regulan el intercambio de gases y la transpiración en la epidermis de la hoja."
+          },
+          {
+            subtopic: "Importancia ecológica",
+            question: "¿Por qué la fotosíntesis es vital para los ecosistemas?",
+            options: ["Porque consume todo el oxígeno disponible", "Porque produce materia orgánica y oxígeno que sostienen las cadenas tróficas", "Porque reduce la humedad del planeta"],
+            correct: 1,
+            explanation: "Es la base de la alimentación de los ecosistemas y mantiene el oxígeno atmosférico."
+          }
+        ]
+      },
+      "Segunda Guerra Mundial": {
+        title: "Segunda Guerra Mundial",
+        engine: "Banco Académico Verificado",
+        overview: "La Segunda Guerra Mundial (1939–1945) fue el conflicto armado más extenso y devastador de la historia contemporánea. Enfrentó principalmente a dos alianzas: las Potencias del Eje (Alemania, Italia y Japón) y los Aliados (Reino Unido, Unión Soviética, Estados Unidos, Francia y China), dejando profundas transformaciones geopolíticas y la creación de la ONU.",
+        sources: [
+          { title: "Archivo Histórico Contemporáneo — Cronología 1939-1945", domain: "historiauniversal.edu", type: "Enciclopedia Histórica", snippet: "Inició el 1 de septiembre de 1939 con la invasión alemana a Polonia." },
+          { title: "Consecuencias Geopolíticas y Derechos Humanos en el Siglo XX", domain: "memoriahistorica.org", type: "Documento de Estudio", snippet: "Tras el conflicto se fundó la Organización de las Naciones Unidas en 1945." }
+        ],
+        keyPoints: [
+          "Comenzó el 1 de septiembre de 1939 tras la invasión de Alemania a Polonia y terminó en septiembre de 1945.",
+          "Los dos grandes bloques enfrentados fueron las Potencias del Eje y los Aliados.",
+          "Incluyó hechos decisivos como la Batalla de Stalingrado, el Desembarco de Normandía y la guerra en el Pacífico.",
+          "Concluyó con la rendición de Alemania en mayo de 1945 y de Japón en septiembre tras los bombardeos atómicos."
+        ],
+        flashcards: [
+          { front: "Potencias del Eje", back: "Alianza liderada por la Alemania nazi, la Italia fascista y el Imperio del Japón." },
+          { front: "Los Aliados", back: "Coalición encabezada por Reino Unido, la Unión Soviética, Estados Unidos y Francia libre." },
+          { front: "1 de septiembre de 1939", back: "Fecha del inicio oficial de la guerra en Europa con la invasión a Polonia." },
+          { front: "Creación de la ONU (1945)", back: "Organismo internacional fundado tras la guerra para preservar la paz y cooperación mundial." }
+        ],
+        example: "La Declaración Universal de los Derechos Humanos de 1948 y la existencia de la ONU nacieron directamente como respuesta internacional para evitar que se repitiera una catástrofe global como la Segunda Guerra Mundial.",
+        practice: [
+          {
+            question: "¿Qué acontecimiento marcó el inicio de la Segunda Guerra Mundial en Europa?",
+            options: ["El ataque a Pearl Harbor", "La invasión alemana a Polonia en 1939", "La caída del Muro de Berlín"],
+            correct: 1,
+            explanation: "El 1 de septiembre de 1939 Alemania invadió Polonia, provocando que Reino Unido y Francia declararan la guerra."
+          },
+          {
+            question: "¿Qué países formaban el núcleo principal de las Potencias del Eje?",
+            options: ["Alemania, Italia y Japón", "Estados Unidos, Francia y Reino Unido", "España, Portugal y Suiza"],
+            correct: 0,
+            explanation: "Alemania, Italia y Japón firmaron el Pacto Tripartito que consolidó el Eje."
+          },
+          {
+            question: "¿Qué organización internacional se creó en 1945 al finalizar el conflicto?",
+            options: ["La Sociedad de Naciones", "La Organización de las Naciones Unidas (ONU)", "La Unión Europea"],
+            correct: 1,
+            explanation: "La ONU fue fundada en octubre de 1945 para fomentar la paz y seguridad internacionales."
+          }
+        ],
+        test: [
+          {
+            subtopic: "Cronología",
+            question: "¿Entre qué años se desarrolló la Segunda Guerra Mundial?",
+            options: ["1914 – 1918", "1939 – 1945", "1945 – 1953"],
+            correct: 1,
+            explanation: "El conflicto inició en septiembre de 1939 y finalizó oficialmente en septiembre de 1945."
+          },
+          {
+            subtopic: "Alianzas",
+            question: "¿Cuál de estos países perteneció al bando de los Aliados?",
+            options: ["Imperio del Japón", "Reino Unido", "Italia fascista"],
+            correct: 1,
+            explanation: "Reino Unido luchó desde el inicio junto a Francia y posteriormente con la URSS y EE. UU."
+          },
+          {
+            subtopic: "Frente Oriental",
+            question: "¿Qué batalla representó un punto de inflexión decisivo contra Alemania en el frente oriental?",
+            options: ["Batalla de Stalingrado", "Batalla de Waterloo", "Batalla de Trafalgar"],
+            correct: 0,
+            explanation: "La derrota alemana en Stalingrado (1942-1943) marcó el inicio del avance soviético hacia Berlín."
+          },
+          {
+            subtopic: "Frente Occidental",
+            question: "¿En qué consistió el Día D o Desembarco de Normandía (junio de 1944)?",
+            options: ["La rendición de Japón", "La apertura de un frente aliado en Francia ocupada", "La firma del Tratado de Versalles"],
+            correct: 1,
+            explanation: "Permitió a los Aliados liberar Europa Occidental del control alemán."
+          },
+          {
+            subtopic: "Consecuencias",
+            question: "¿Cuál fue una consecuencia geopolítica directa del fin de la guerra?",
+            options: ["El surgimiento de EE. UU. y la URSS como superpotencias y la fundación de la ONU", "La desaparición del comercio marítimo", "El regreso del feudalismo en Europa"],
+            correct: 0,
+            explanation: "El mundo quedó dividido en dos bloques (Guerra Fría) y se estableció la ONU."
+          }
+        ]
+      },
+      "Leyes de Newton": {
+        title: "Leyes de Newton",
+        engine: "Banco Académico Verificado",
+        overview: "Las tres Leyes de Newton o leyes del movimiento son los principios fundamentales de la mecánica clásica formulados por Isaac Newton en 1687. Explican la relación entre las fuerzas que actúan sobre un cuerpo y el movimiento que este experimenta.",
+        sources: [
+          { title: "Física Clásica — Principios de Dinámica de Newton", domain: "fisica-educativa.edu", type: "Manual de Física", snippet: "Establecen las bases de la inercia, la proporcionalidad fuerza-aceleración y la acción-reacción." },
+          { title: "Laboratorio de Mecánica Elemental", domain: "cienciasexactas.org", type: "Guía Práctica", snippet: "Aplicables en ingeniería, transporte, deportes y astronomía cotidiana." }
+        ],
+        keyPoints: [
+          "Primera Ley (Inercia): Todo cuerpo permanece en reposo o movimiento rectilíneo uniforme si no actúa una fuerza neta sobre él.",
+          "Segunda Ley (Dinámica): La aceleración de un objeto es directamente proporcional a la fuerza neta e inversamente proporcional a su masa (F = m · a).",
+          "Tercera Ley (Acción y Reacción): A toda fuerza de acción corresponde otra fuerza de igual magnitud y dirección, pero en sentido opuesto.",
+          "La unidad de fuerza en el Sistema Internacional es el Newton (N = kg · m/s²)."
+        ],
+        flashcards: [
+          { front: "1.ª Ley: Inercia", back: "Un objeto no cambia su estado de reposo o movimiento constante a menos que una fuerza externa actúe sobre él." },
+          { front: "2.ª Ley: F = m · a", back: "A mayor fuerza aplicada, mayor aceleración; a mayor masa, mayor resistencia a acelerar." },
+          { front: "3.ª Ley: Acción-Reacción", back: "Si un cuerpo A ejerce fuerza sobre B, B ejerce una fuerza igual y opuesta sobre A." },
+          { front: "Newton (N)", back: "Unidad de medida de la fuerza; equivale a acelerar 1 kg a razón de 1 m/s²." }
+        ],
+        example: "Cuando viajas en autobús y frena de golpe, tu cuerpo tiende a seguir moviéndose hacia adelante por la Primera Ley (inercia), razón por la cual es vital usar el cinturón de seguridad.",
+        practice: [
+          {
+            question: "¿Qué ley explica por qué debemos usar cinturón de seguridad al frenar bruscamente un auto?",
+            options: ["Primera Ley (Inercia)", "Segunda Ley (Fuerza y masa)", "Tercera Ley (Acción y reacción)"],
+            correct: 0,
+            explanation: "Por inercia, tu cuerpo tiende a conservar la velocidad que llevaba antes del frenazo."
+          },
+          {
+            question: "Según la Segunda Ley de Newton, si aplicas la misma fuerza a un balón y a una piedra pesada, ¿cuál acelera más?",
+            options: ["La piedra pesada", "El balón, porque tiene menor masa", "Ambos aceleran exactamente igual"],
+            correct: 1,
+            explanation: "La aceleración es inversamente proporcional a la masa (a = F / m)."
+          },
+          {
+            question: "Cuando un cohete expulsa gases hacia abajo y sube hacia el espacio, ¿qué ley se manifiesta?",
+            options: ["Ley de la gravitación", "Tercera Ley (Acción y reacción)", "Conservación de la temperatura"],
+            correct: 1,
+            explanation: "Los gases empujan hacia abajo (acción) y impulsan el cohete hacia arriba (reacción)."
+          }
+        ],
+        test: [
+          {
+            subtopic: "Primera Ley",
+            question: "¿Qué establece la Primera Ley de Newton?",
+            options: ["Que todo cuerpo cae con la misma fuerza", "Que un cuerpo mantiene su reposo o MRU si la fuerza neta es cero", "Que la fuerza es igual a masa por velocidad"],
+            correct: 1,
+            explanation: "Es el principio de inercia formulado originalmente por Galileo y sistematizado por Newton."
+          },
+          {
+            subtopic: "Segunda Ley (Cálculo)",
+            question: "¿Qué fuerza neta se necesita para acelerar una caja de 5 kg a 3 m/s²?",
+            options: ["8 N", "15 N", "1.6 N"],
+            correct: 1,
+            explanation: "Aplicando F = m · a: 5 kg × 3 m/s² = 15 N."
+          },
+          {
+            subtopic: "Tercera Ley",
+            question: "Al remar en un bote empujando el agua hacia atrás, el bote avanza hacia adelante porque:",
+            options: ["El agua ejerce una fuerza de reacción hacia adelante sobre el remo", "La masa del agua desaparece", "No existe fricción en el río"],
+            correct: 0,
+            explanation: "Las fuerzas de acción y reacción actúan siempre en pares opuestos sobre cuerpos distintos."
+          },
+          {
+            subtopic: "Relación masa-aceleración",
+            question: "Si duplicas la fuerza neta sobre un carrito manteniendo su masa constante, su aceleración:",
+            options: ["Se reduce a la mitad", "Se duplica", "Permanece igual"],
+            correct: 1,
+            explanation: "La aceleración es directamente proporcional a la fuerza neta aplicada."
+          },
+          {
+            subtopic: "Unidades SI",
+            question: "¿En qué unidad se mide la fuerza en el Sistema Internacional?",
+            options: ["Julio (J)", "Newton (N)", "Vatio (W)"],
+            correct: 1,
+            explanation: "El Newton (N) equivale a kg·m/s²."
+          }
+        ]
+      },
+      "Partida Doble en Contabilidad": {
+        title: "Partida Doble en Contabilidad",
+        engine: "Banco Académico Verificado",
+        overview: "La partida doble es el método fundamental de la contabilidad moderna. Establece que en toda operación financiera no hay deudor sin acreedor: cada transacción afecta al menos a dos cuentas contables, registrándose simultáneamente en el Debe y en el Haber por el mismo valor total para mantener el equilibrio patrimonial.",
+        sources: [
+          { title: "Fundamentos de Contabilidad General — Principio de Dualidad", domain: "contabilidad-escolar.edu", type: "Manual Contable", snippet: "Todo asiento contable debe cumplir que la suma del Debe sea igual a la del Haber." },
+          { title: "Ecuación Patrimonial y Libros Diarios", domain: "finanzasbasicas.org", type: "Guía Práctica", snippet: "Activo = Pasivo + Patrimonio se mantiene equilibrado mediante la partida doble." }
+        ],
+        keyPoints: [
+          "Principio básico: 'No hay deudor sin acreedor, ni acreedor sin deudor'.",
+          "Toda transacción se registra en dos columnas: Debe (izquierda) y Haber (derecha).",
+          "La suma de los cargos (Debe) siempre debe ser exactamente igual a la suma de los abonos (Haber).",
+          "Mantiene equilibrada la ecuación contable fundamental: Activo = Pasivo + Patrimonio."
+        ],
+        flashcards: [
+          { front: "Debe (Cargo)", back: "Columna izquierda de una cuenta donde se registran aumentos de activo o disminuciones de pasivo." },
+          { front: "Haber (Abono)", back: "Columna derecha donde se registran salidas de activo, aumentos de pasivo o ingresos." },
+          { front: "Asiento Contable", back: "Anotación en el Libro Diario que refleja una operación cumpliendo la igualdad Debe = Haber." },
+          { front: "Ecuación Contable", back: "Activo = Pasivo + Patrimonio Neto; base del equilibrio financiero." }
+        ],
+        example: "Si una tienda compra mercadería por $500 en efectivo, aumenta su cuenta de Inventario en el Debe por $500 y disminuye su cuenta de Caja en el Haber por $500. El balance sigue perfectamente cuadrado.",
+        practice: [
+          {
+            question: "¿Cuál es la regla de oro de la partida doble?",
+            options: ["El Debe siempre debe ser mayor que el Haber", "La suma del Debe debe ser igual a la suma del Haber", "Solo se registra el dinero en efectivo"],
+            correct: 1,
+            explanation: "El equilibrio contable exige que cargos y abonos sumen exactamente lo mismo."
+          },
+          {
+            question: "¿Cómo se llama la columna izquierda de una cuenta contable?",
+            options: ["Haber", "Debe", "Saldo acreedor"],
+            correct: 1,
+            explanation: "En contabilidad, el lado izquierdo es el Debe y el derecho es el Haber."
+          },
+          {
+            question: "Si compras un escritorio por $200 pagando en efectivo, ¿qué ocurre?",
+            options: ["Aumenta Muebles (Debe) y disminuye Caja (Haber) por $200", "Aumentan ambos en el Debe", "Solo se anota en el Haber"],
+            correct: 0,
+            explanation: "Entra un bien (cargo en Muebles) y sale dinero (abono en Caja)."
+          }
+        ],
+        test: [
+          {
+            subtopic: "Principio fundamental",
+            question: "¿Cuántas cuentas como mínimo intervienen en un asiento por partida doble?",
+            options: ["Una sola cuenta", "Al menos dos cuentas", "Siempre cinco cuentas"],
+            correct: 1,
+            explanation: "Toda operación tiene un origen y un destino, por lo que afecta mínimo a dos cuentas."
+          },
+          {
+            subtopic: "Ecuación contable",
+            question: "¿Cuál es la fórmula correcta de la ecuación contable básica?",
+            options: ["Activo = Pasivo - Patrimonio", "Activo = Pasivo + Patrimonio", "Pasivo = Activo + Patrimonio"],
+            correct: 1,
+            explanation: "Los bienes y derechos (Activo) se financian con deudas (Pasivo) o recursos propios (Patrimonio)."
+          },
+          {
+            subtopic: "Registro de operaciones",
+            question: "Una empresa recibe $1,000 en su cuenta bancaria por un préstamo del banco. ¿Cómo se registra?",
+            options: ["Debe: Bancos $1,000 / Haber: Préstamos por pagar $1,000", "Debe: Préstamos $1,000 / Haber: Bancos $1,000", "Debe: Caja $1,000 / Haber: Ventas $1,000"],
+            correct: 0,
+            explanation: "Aumenta el activo Bancos (Debe) y aumenta la obligación de pago (Haber)."
+          },
+          {
+            subtopic: "Terminología",
+            question: "¿Qué significa 'abonar' una cuenta en contabilidad?",
+            options: ["Registrar un valor en el lado del Haber", "Registrar un valor en el lado del Debe", "Eliminar la cuenta del libro"],
+            correct: 0,
+            explanation: "Cargar es anotar en el Debe y abonar es anotar en el Haber."
+          },
+          {
+            subtopic: "Control financiero",
+            question: "¿Qué ventaja principal ofrece el sistema de partida doble?",
+            options: ["Evita pagar impuestos", "Permite detectar errores de registro al comprobar que Debe y Haber cuadran", "Elimina la necesidad de facturas"],
+            correct: 1,
+            explanation: "Si los totales del Debe y del Haber no coinciden, se detecta de inmediato un error contable."
+          }
+        ]
+      },
+      "Grupos Sanguíneos ABO y Rh": {
+        title: "Grupos Sanguíneos ABO y Rh",
+        engine: "Banco Académico Verificado",
+        overview: "Los sistemas ABO y Rh clasifican la sangre humana según la presencia o ausencia de determinados antígenos en la superficie de los glóbulos rojos (eritrocitos) y de anticuerpos en el plasma. Conocer el grupo sanguíneo es esencial para realizar transfusiones seguras y prevenir reacciones inmunológicas.",
+        sources: [
+          { title: "Hematología Básica — Sistema ABO y Factor Rh", domain: "salud-educativa.edu", type: "Guía Médica Escolar", snippet: "Descubierto por Karl Landsteiner en 1901; clasifica la sangre en A, B, AB y O." },
+          { title: "Compatibilidad en Transfusiones Sanguíneas", domain: "biomedicina.org", type: "Tabla de Referencia", snippet: "El grupo O negativo es donante universal de glóbulos rojos y AB positivo es receptor universal." }
+        ],
+        keyPoints: [
+          "El sistema ABO determina cuatro grupos principales: A, B, AB y O según los antígenos en los glóbulos rojos.",
+          "El factor Rh indica la presencia (+) o ausencia (-) de la proteína antígeno D.",
+          "El grupo O negativo (O-) es considerado el donante universal de glóbulos rojos.",
+          "El grupo AB positivo (AB+) es el receptor universal porque no posee anticuerpos anti-A, anti-B ni anti-Rh."
+        ],
+        flashcards: [
+          { front: "Grupo O Negativo (O-)", back: "No tiene antígenos A, B ni Rh en sus glóbulos rojos; puede donar eritrocitos a cualquier grupo." },
+          { front: "Grupo AB Positivo (AB+)", back: "Posee todos los antígenos y ningún anticuerpo plasmático contra ellos; puede recibir de todos." },
+          { front: "Antígenos", back: "Proteínas o azúcares en la membrana del glóbulo rojo que identifican el tipo de sangre." },
+          { front: "Factor Rh", back: "Proteína heredada (antígeno D); si está presente es Rh+ y si falta es Rh-." }
+        ],
+        example: "Antes de una cirugía o transfusión, el laboratorio realiza una prueba cruzada para asegurar que la sangre del donante no provoque que los anticuerpos del paciente ataquen los glóbulos rojos recibidos.",
+        practice: [
+          {
+            question: "¿Qué grupo sanguíneo es conocido como el donante universal de glóbulos rojos?",
+            options: ["AB+", "O-", "A+"],
+            correct: 1,
+            explanation: "Al carecer de antígenos A, B y D (Rh), no desencadena rechazo en otros grupos."
+          },
+          {
+            question: "¿Qué significa que una persona sea Rh positivo (+)?",
+            options: ["Que tiene anticuerpos contra el Rh", "Que posee el antígeno D en sus glóbulos rojos", "Que solo puede recibir sangre O-"],
+            correct: 1,
+            explanation: "El signo positivo indica la presencia de la proteína Rh en la superficie de los eritrocitos."
+          },
+          {
+            question: "¿Qué grupo sanguíneo puede recibir glóbulos rojos de cualquier otro grupo?",
+            options: ["O-", "AB+", "B-"],
+            correct: 1,
+            explanation: "El grupo AB+ es el receptor universal."
+          }
+        ],
+        test: [
+          {
+            subtopic: "Antígenos ABO",
+            question: "¿Qué antígenos posee en sus glóbulos rojos una persona de grupo sanguíneo O?",
+            options: ["Antígenos A y B", "Ningún antígeno A ni B", "Solo antígeno A"],
+            correct: 1,
+            explanation: "El grupo O se caracteriza precisamente por la ausencia de antígenos A y B."
+          },
+          {
+            subtopic: "Compatibilidad de donación",
+            question: "Una persona con grupo A+ puede recibir sangre de:",
+            options: ["A+, A-, O+ y O-", "Únicamente de AB+", "B+ y AB-"],
+            correct: 0,
+            explanation: "Puede recibir de su mismo grupo (A) o del grupo O, tanto Rh+ como Rh-."
+          },
+          {
+            subtopic: "Receptor universal",
+            question: "¿Por qué el grupo AB+ es el receptor universal de glóbulos rojos?",
+            options: ["Porque no tiene glóbulos rojos", "Porque no produce anticuerpos anti-A, anti-B ni anti-Rh", "Porque su sangre es más líquida"],
+            correct: 1,
+            explanation: "Al reconocer todos los antígenos como propios, su sistema inmune no ataca la sangre recibida."
+          },
+          {
+            subtopic: "Factor Rh",
+            question: "Una persona con sangre Rh negativo (Rh-) nunca debe recibir sangre Rh+ porque:",
+            options: ["Desarrollará anticuerpos anti-Rh que destruyen los glóbulos rojos donados", "Su grupo cambiará a AB", "Aumentará su presión arterial al instante"],
+            correct: 0,
+            explanation: "El sistema inmune del receptor Rh- reconoce el antígeno D como extraño."
+          },
+          {
+            subtopic: "Historia científica",
+            question: "¿Quién descubrió los grupos sanguíneos ABO en 1901?",
+            options: ["Louis Pasteur", "Karl Landsteiner", "Gregor Mendel"],
+            correct: 1,
+            explanation: "Karl Landsteiner recibió el Premio Nobel de Medicina en 1930 por este hallazgo."
+          }
+        ]
+      }
+    };
+
+    // Inicializar iconos Lucide y estado al cargar
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+      updateApiKeyLabel();
+
+      const input = document.getElementById("topic-input");
+      const clearBtn = document.getElementById("clear-input-btn");
+      if (input && clearBtn) {
+        input.addEventListener("input", () => {
+          clearBtn.classList.toggle("hidden", input.value.trim().length === 0);
+        });
+      }
+    });
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      const colors = {
+        info: "bg-slate-900 text-white border-slate-700",
+        success: "bg-emerald-700 text-white border-emerald-500",
+        warning: "bg-amber-600 text-white border-amber-400"
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs sm:text-sm font-medium flex items-center gap-2 animate-fade-in ${colors[type] || colors.info}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transition = "opacity 0.3s ease";
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function getActiveApiKey() {
+      return (localStorage.getItem("veristudy_gemini_key") || apiKey || "").trim();
+    }
+
+    function updateApiKeyLabel() {
+      const label = document.getElementById("api-key-status-label");
+      if (!label) return;
+      label.textContent = getActiveApiKey() ? "Gemini IA Activo" : "API IA (Opcional)";
+    }
+
+    function openApiKeyModal() {
+      const modal = document.getElementById("api-key-modal");
+      const input = document.getElementById("gemini-api-key-input");
+      input.value = localStorage.getItem("veristudy_gemini_key") || "";
+      modal.classList.remove("hidden");
+    }
+
+    function closeApiKeyModal() {
+      document.getElementById("api-key-modal").classList.add("hidden");
+    }
+
+    function saveApiKey() {
+      const val = document.getElementById("gemini-api-key-input").value.trim();
+      if (val) {
+        localStorage.setItem("veristudy_gemini_key", val);
+        showToast("Clave de Gemini guardada en tu navegador.", "success");
+      } else {
+        localStorage.removeItem("veristudy_gemini_key");
+        showToast("Clave vacía: se usará Wikipedia y el banco académico.", "info");
+      }
+      updateApiKeyLabel();
+      closeApiKeyModal();
+    }
+
+    function clearApiKey() {
+      localStorage.removeItem("veristudy_gemini_key");
+      document.getElementById("gemini-api-key-input").value = "";
+      updateApiKeyLabel();
+      closeApiKeyModal();
+      showToast("Clave eliminada correctamente.", "info");
+    }
+
+    function resetToHome() {
+      document.getElementById("workspace-container").classList.add("hidden");
+      document.getElementById("steps-nav").classList.add("hidden");
+      document.getElementById("header-topic-badge").classList.add("hidden");
+      document.getElementById("hero-cover").classList.remove("hidden");
+      clearSearchInput();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function focusSearch() {
+      const input = document.getElementById("topic-input");
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => input.focus(), 250);
+    }
+
+    function clearSearchInput() {
+      const input = document.getElementById("topic-input");
+      input.value = "";
+      document.getElementById("clear-input-btn").classList.add("hidden");
+      input.focus();
+    }
+
+    function selectQuickTopic(topicName) {
+      const input = document.getElementById("topic-input");
+      input.value = topicName;
+      document.getElementById("clear-input-btn").classList.remove("hidden");
+      investigateTopic(topicName);
+    }
+
+    function handleSearchSubmit(e) {
+      e.preventDefault();
+      const query = document.getElementById("topic-input").value.trim();
+      if (!query) {
+        showToast("Escribe un tema escolar para comenzar.", "warning");
+        return;
+      }
+      investigateTopic(query);
+    }
+
+    async function investigateTopic(query) {
+      const loadingSection = document.getElementById("loading-section");
+      const workspace = document.getElementById("workspace-container");
+      const heroCover = document.getElementById("hero-cover");
+
+      heroCover.classList.add("hidden");
+      workspace.classList.add("hidden");
+      loadingSection.classList.remove("hidden");
+
+      try {
+        // 1. Verificar coincidencia en el banco rápido
+        const exactMatchKey = Object.keys(QUICK_TOPICS_DB).find(
+          k => k.toLowerCase() === query.toLowerCase()
+        );
+
+        let topicData = null;
+
+        if (exactMatchKey) {
+          await new Promise(r => setTimeout(r, 450));
+          topicData = JSON.parse(JSON.stringify(QUICK_TOPICS_DB[exactMatchKey]));
+        } else if (getActiveApiKey()) {
+          // 2. Si el usuario configuró clave de Gemini, usar Gemini con búsqueda en Google
+          document.getElementById("loading-title").textContent = `Investigando "${query}" con Gemini IA...`;
+          topicData = await fetchFromGemini(query, getActiveApiKey());
+        } else {
+          // 3. Consultar API pública de Wikipedia en español en vivo y construir guía real
+          document.getElementById("loading-title").textContent = `Buscando "${query}" en Wikipedia en español...`;
+          topicData = await fetchFromWikipediaAndBuildGuide(query);
+        }
+
+        currentTopicData = topicData;
+        userTestAnswers = {};
+        renderTopicWorkspace(topicData);
+
+        loadingSection.classList.add("hidden");
+        workspace.classList.remove("hidden");
+        document.getElementById("steps-nav").classList.remove("hidden");
+
+        const badge = document.getElementById("header-topic-badge");
+        badge.classList.remove("hidden");
+        badge.classList.add("flex");
+        document.getElementById("header-topic-name").textContent = topicData.title;
+
+        goToStep(1);
+        showToast(`Guía de estudio generada para: ${topicData.title}`, "success");
+      } catch (err) {
+        console.error(err);
+        loadingSection.classList.add("hidden");
+        heroCover.classList.remove("hidden");
+        showToast("No se pudo obtener información del tema. Intenta con otro término más específico.", "warning");
+      }
+    }
+
+    // Motor en vivo usando la API pública de Wikipedia en español
+    async function fetchFromWikipediaAndBuildGuide(query) {
+      const searchUrl = `https://es.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`;
+      const searchRes = await fetch(searchUrl);
+      const searchJson = await searchRes.json();
+
+      if (!searchJson.query || !searchJson.query.search || searchJson.query.search.length === 0) {
+        throw new Error("Sin resultados en Wikipedia");
+      }
+
+      const bestTitle = searchJson.query.search[0].title;
+      const summaryUrl = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(bestTitle)}`;
+      const extractUrl = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=false&explaintext=true&exsentences=14&titles=${encodeURIComponent(bestTitle)}&format=json&origin=*`;
+
+      const [sumRes, extRes] = await Promise.all([fetch(summaryUrl), fetch(extractUrl)]);
+      const sumData = await sumRes.json();
+      const extData = await extRes.json();
+
+      const pages = extData.query.pages;
+      const pageId = Object.keys(pages)[0];
+      const fullExtract = (pages[pageId] && pages[pageId].extract) || sumData.extract || "";
+      const cleanSummary = sumData.extract || fullExtract.slice(0, 480);
+
+      // Dividir en oraciones reales del artículo
+      const rawSentences = fullExtract
+        .replace(/\n+/g, " ")
+        .split(/(?<=[.!?])\s+/)
+        .map(s => s.trim())
+        .filter(s => s.length >= 45 && s.length <= 240 && !s.includes("=="));
+
+      const sentences = rawSentences.length >= 4 ? rawSentences : [
+        cleanSummary,
+        `${bestTitle} es un concepto fundamental estudiado dentro de su área académica por sus características e impacto.`,
+        `El análisis de ${bestTitle} permite comprender cómo se estructura y funciona dentro de contextos reales.`,
+        `Estudiar ${bestTitle} requiere identificar sus elementos principales, causas y aplicaciones prácticas.`
+      ];
+
+      // Extraer palabras clave significativas para tarjetas y preguntas
+      const stopWords = new Set(["sobre", "entre", "desde", "hasta", "donde", "cuando", "como", "para", "porque", "aunque", "según", "también", "puede", "pueden", "siendo", "durante", "mediante", "través", "forma", "parte", "otros", "otras", "estos", "estas", "aquel", "tiene", "tienen", "consiste", "refiere", "llama", "conocido", "conocida"]);
+      const candidateWords = Array.from(new Set(
+        fullExtract
+          .replace(/[^\p{L}\s]/gu, " ")
+          .split(/\s+/)
+          .filter(w => w.length >= 6 && !stopWords.has(w.toLowerCase()) && w.toLowerCase() !== bestTitle.toLowerCase())
+      ));
+
+      const kw1 = candidateWords[0] || "Concepto Central";
+      const kw2 = candidateWords[1] || "Estructura";
+      const kw3 = candidateWords[2] || "Función";
+      const kw4 = candidateWords[3] || "Aplicación";
+
+      const keyPoints = sentences.slice(0, 4);
+
+      const flashcards = [
+        { front: `Definición de ${bestTitle}`, back: sentences[0] || cleanSummary },
+        { front: `Elemento clave: ${kw1}`, back: sentences[1] || `Componente esencial asociado al estudio de ${bestTitle}.` },
+        { front: `Aspecto relevante: ${kw2}`, back: sentences[2] || `Característica fundamental que explica el comportamiento de ${bestTitle}.` },
+        { front: `Contexto y alcance: ${kw3}`, back: sentences[3] || `Importancia y aplicación directa de ${bestTitle} en su campo.` }
+      ];
+
+      const makeDistractors = (correctSentence, idx) => {
+        const distractors = [
+          `Es un fenómeno exclusivamente ficticio que no guarda relación con ${bestTitle}.`,
+          `Corresponde únicamente a una regla ortográfica sin aplicación en ${bestTitle}.`,
+          `Se refiere a un instrumento musical antiguo ajeno al estudio de ${bestTitle}.`
+        ];
+        const options = [correctSentence, distractors[idx % distractors.length], distractors[(idx + 1) % distractors.length]];
+        // Rotar posición correcta de forma determinista
+        const correctPos = idx % 3;
+        if (correctPos !== 0) {
+          const temp = options[0];
+          options[0] = options[correctPos];
+          options[correctPos] = temp;
+        }
+        return { options, correct: correctPos };
+      };
+
+      const practice = [0, 1, 2].map(i => {
+        const fact = sentences[i % sentences.length];
+        const { options, correct } = makeDistractors(fact, i);
+        return {
+          question: i === 0
+            ? `Según las fuentes consultadas, ¿qué afirmación define correctamente a "${bestTitle}"?`
+            : i === 1
+            ? `¿Cuál de los siguientes enunciados describe una característica real de "${bestTitle}"?`
+            : `Sobre el estudio de "${bestTitle}", ¿qué dato es verdadero?`,
+          options,
+          correct,
+          explanation: `Correcto. Según la síntesis verificada: "${fact}"`
+        };
+      });
+
+      const test = [0, 1, 2, 3, 4].map(i => {
+        const fact = sentences[i % sentences.length];
+        const { options, correct } = makeDistractors(fact, i + 1);
+        const subtopics = ["Definición general", `Concepto de ${kw1}`, `Relación con ${kw2}`, `Características de ${bestTitle}`, "Síntesis conceptual"];
+        return {
+          subtopic: subtopics[i],
+          question: `Pregunta ${i + 1} sobre ${bestTitle}: selecciona la afirmación respaldada por la fuente enciclopédica.`,
+          options,
+          correct,
+          explanation: `Respaldo verificado: "${fact}"`
+        };
+      });
+
+      return {
+        title: bestTitle,
+        engine: "Wikipedia en Español (Consulta en Vivo)",
+        overview: cleanSummary,
+        sources: [
+          {
+            title: `${bestTitle} — Wikipedia, la enciclopedia libre`,
+            domain: "es.wikipedia.org",
+            type: "Enciclopedia Colaborativa",
+            snippet: sumData.description || `Artículo enciclopédico verificado sobre ${bestTitle}.`,
+            url: sumData.content_urls && sumData.content_urls.desktop ? sumData.content_urls.desktop.page : `https://es.wikipedia.org/wiki/${encodeURIComponent(bestTitle)}`
+          },
+          {
+            title: `Resultados relacionados con "${query}" en Wikipedia`,
+            domain: "es.wikipedia.org/w/api.php",
+            type: "Índice de Búsqueda",
+            snippet: `Se encontraron ${searchJson.query.search.length} artículos relacionados para contrastar el tema.`
+          }
+        ],
+        keyPoints,
+        flashcards,
+        example: `Al investigar sobre "${bestTitle}" en trabajos escolares, contrastar su definición con términos como "${kw1}" y "${kw2}" te permite explicar el tema con tus propias palabras y evitar copiar información sin verificar.`,
+        practice,
+        test
+      };
+    }
+
+    // Motor opcional con Gemini API + Google Search Grounding
+    async function fetchFromGemini(query, key) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`;
+      const prompt = `Actúa como un tutor escolar experto. Investiga el tema "${query}" usando información real y devuelve ÚNICAMENTE un objeto JSON válido (sin markdown ni texto extra) con esta estructura exacta:
+{
+  "title": "Nombre formal del tema",
+  "engine": "Gemini IA + Búsqueda Verificada",
+  "overview": "Resumen claro y riguroso de 3 a 4 líneas",
+  "sources": [
+    {"title": "Nombre de fuente 1", "domain": "dominio1.org", "type": "Fuente Académica", "snippet": "Dato clave"},
+    {"title": "Nombre de fuente 2", "domain": "dominio2.edu", "type": "Referencia", "snippet": "Dato clave"}
+  ],
+  "keyPoints": ["Punto 1", "Punto 2", "Punto 3", "Punto 4"],
+  "flashcards": [
+    {"front": "Concepto 1", "back": "Definición clara 1"},
+    {"front": "Concepto 2", "back": "Definición clara 2"},
+    {"front": "Concepto 3", "back": "Definición clara 3"},
+    {"front": "Concepto 4", "back": "Definición clara 4"}
+  ],
+  "example": "Ejemplo práctico aplicado a la vida cotidiana",
+  "practice": [
+    {"question": "Pregunta 1", "options": ["Opción A", "Opción B", "Opción C"], "correct": 0, "explanation": "Explicación"},
+    {"question": "Pregunta 2", "options": ["Opción A", "Opción B", "Opción C"], "correct": 1, "explanation": "Explicación"},
+    {"question": "Pregunta 3", "options": ["Opción A", "Opción B", "Opción C"], "correct": 2, "explanation": "Explicación"}
+  ],
+  "test": [
+    {"subtopic": "Subtema 1", "question": "Pregunta 1", "options": ["A", "B", "C"], "correct": 0, "explanation": "Explicación"},
+    {"subtopic": "Subtema 2", "question": "Pregunta 2", "options": ["A", "B", "C"], "correct": 1, "explanation": "Explicación"},
+    {"subtopic": "Subtema 3", "question": "Pregunta 3", "options": ["A", "B", "C"], "correct": 2, "explanation": "Explicación"},
+    {"subtopic": "Subtema 4", "question": "Pregunta 4", "options": ["A", "B", "C"], "correct": 0, "explanation": "Explicación"},
+    {"subtopic": "Subtema 5", "question": "Pregunta 5", "options": ["A", "B", "C"], "correct": 1, "explanation": "Explicación"}
+  ]
+}`;
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }]
+        })
+      });
+
+      if (!res.ok) throw new Error("Error en Gemini API");
+      const data = await res.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("Respuesta no válida de Gemini");
+      return JSON.parse(jsonMatch[0]);
+    }
+
+    function renderTopicWorkspace(data) {
+      // Paso 1: Fuentes y síntesis
+      document.getElementById("source-engine-badge").textContent = data.engine;
+      document.getElementById("topic-main-title").textContent = data.title;
+      document.getElementById("topic-overview").textContent = data.overview;
+
+      const sourcesList = document.getElementById("sources-list");
+      sourcesList.innerHTML = data.sources.map(src => `
+        <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 transition space-y-1.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">${src.type}</span>
+            <span class="text-xs text-slate-400 truncate">${src.domain}</span>
+          </div>
+          <h4 class="text-sm font-bold text-slate-900">
+            ${src.url ? `<a href="${src.url}" target="_blank" rel="noopener noreferrer" class="hover:text-indigo-600 underline decoration-indigo-300">${src.title}</a>` : src.title}
+          </h4>
+          <p class="text-xs text-slate-600 leading-relaxed">${src.snippet}</p>
+        </div>
+      `).join("");
+
+      // Paso 2: Repaso IA
+      const keyPointsList = document.getElementById("key-points-list");
+      keyPointsList.innerHTML = data.keyPoints.map((pt, i) => `
+        <li class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-sm text-slate-700">
+          <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">${i + 1}</span>
+          <span>${pt}</span>
+        </li>
+      `).join("");
+
+      const flashcardsGrid = document.getElementById("flashcards-grid");
+      flashcardsGrid.innerHTML = data.flashcards.map(card => `
+        <div onclick="this.classList.toggle('flipped')" class="flip-card h-40">
+          <div class="flip-card-inner">
+            <div class="flip-card-front bg-gradient-to-br from-indigo-600 to-purple-700 text-white p-5 flex flex-col justify-between shadow-sm">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-200">Concepto Clave · Toca para ver</span>
+              <h4 class="text-base sm:text-lg font-extrabold leading-snug">${card.front}</h4>
+              <span class="text-xs text-indigo-200 self-end">↻ Girar</span>
+            </div>
+            <div class="flip-card-back bg-indigo-50 border-2 border-indigo-200 text-slate-800 p-5 flex flex-col justify-between">
+              <span class="text-[10px] uppercase tracking-wider font-bold text-indigo-600">Explicación</span>
+              <p class="text-xs sm:text-sm leading-relaxed font-medium">${card.back}</p>
+              <span class="text-xs text-indigo-500 self-end">↺ Volver</span>
+            </div>
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("real-world-example").textContent = data.example;
+
+      // Paso 3: Práctica Rápida
+      const practiceContainer = document.getElementById("practice-questions-container");
+      practiceContainer.innerHTML = data.practice.map((q, qIdx) => `
+        <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/60 space-y-3" id="practice-card-${qIdx}">
+          <p class="text-sm sm:text-base font-bold text-slate-900">${qIdx + 1}. ${q.question}</p>
+          <div class="space-y-2">
+            ${q.options.map((opt, oIdx) => `
+              <button
+                type="button"
+                onclick="checkPracticeAnswer(${qIdx}, ${oIdx})"
+                class="practice-opt-${qIdx} w-full text-left px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-400 text-xs sm:text-sm text-slate-700 transition flex items-center gap-2.5"
+                data-opt="${oIdx}"
+              >
+                <span class="w-6 h-6 rounded-full border border-slate-300 text-xs font-bold flex items-center justify-center shrink-0">${String.fromCharCode(65 + oIdx)}</span>
+                <span>${opt}</span>
+              </button>
+            `).join("")}
+          </div>
+          <div id="practice-feedback-${qIdx}" class="hidden text-xs sm:text-sm p-3 rounded-xl font-medium"></div>
+        </div>
+      `).join("");
+
+      // Paso 4: Test Final
+      renderTestQuestions();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function checkPracticeAnswer(qIdx, selectedIdx) {
+      const q = currentTopicData.practice[qIdx];
+      const buttons = document.querySelectorAll(`.practice-opt-${qIdx}`);
+      const feedback = document.getElementById(`practice-feedback-${qIdx}`);
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove("hover:border-indigo-400");
+        if (idx === q.correct) {
+          btn.classList.add("bg-emerald-50", "border-emerald-500", "text-emerald-900", "font-semibold");
+        } else if (idx === selectedIdx && selectedIdx !== q.correct) {
+          btn.classList.add("bg-rose-50", "border-rose-400", "text-rose-900");
+        }
+      });
+
+      feedback.classList.remove("hidden", "bg-emerald-100", "text-emerald-900", "bg-rose-100", "text-rose-900");
+      if (selectedIdx === q.correct) {
+        feedback.classList.add("bg-emerald-100", "text-emerald-900");
+        feedback.textContent = `✓ ¡Correcto! ${q.explanation}`;
+      } else {
+        feedback.classList.add("bg-rose-100", "text-rose-900");
+        feedback.textContent = `✕ Respuesta incorrecta. ${q.explanation}`;
+      }
+    }
+
+    function renderTestQuestions() {
+      const container = document.getElementById("test-questions-container");
+      document.getElementById("test-results-panel").classList.add("hidden");
+      userTestAnswers = {};
+
+      container.innerHTML = currentTopicData.test.map((q, qIdx) => `
+        <div class="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md">${q.subtopic}</span>
+            <span class="text-xs text-slate-400">Pregunta ${qIdx + 1} de ${currentTopicData.test.length}</span>
+          </div>
+          <p class="text-sm sm:text-base font-bold text-slate-900">${q.question}</p>
+          <div class="space-y-2">
+            ${q.options.map((opt, oIdx) => `
+              <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer transition text-xs sm:text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="test-q-${qIdx}"
+                  value="${oIdx}"
+                  onchange="userTestAnswers[${qIdx}] = ${oIdx}"
+                  class="w-4 h-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>${opt}</span>
+              </label>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function resetTest() {
+      renderTestQuestions();
+      showToast("Test reiniciado.", "info");
+    }
+
+    function evaluateTest() {
+      const total = currentTopicData.test.length;
+      if (Object.keys(userTestAnswers).length < total) {
+        showToast(`Responde las ${total} preguntas antes de calcular tu nivel.`, "warning");
+        return;
+      }
+
+      let correctCount = 0;
+      const weakSubtopics = [];
+      const breakdownHTML = [];
+
+      currentTopicData.test.forEach((q, idx) => {
+        const chosen = userTestAnswers[idx];
+        const isCorrect = chosen === q.correct;
+        if (isCorrect) {
+          correctCount++;
+        } else {
+          weakSubtopics.push(q.subtopic);
+        }
+
+        breakdownHTML.push(`
+          <div class="p-3.5 rounded-xl border ${isCorrect ? "bg-emerald-50/70 border-emerald-200" : "bg-rose-50/70 border-rose-200"} text-xs sm:text-sm space-y-1">
+            <div class="flex items-center justify-between font-bold ${isCorrect ? "text-emerald-800" : "text-rose-800"}">
+              <span>${idx + 1}. ${q.question}</span>
+              <span>${isCorrect ? "✓ Correcta" : "✕ A reforzar"}</span>
+            </div>
+            <p class="text-slate-600">${q.explanation}</p>
+          </div>
+        `);
+      });
+
+      const percentage = Math.round((correctCount / total) * 100);
+      const resultsPanel = document.getElementById("test-results-panel");
+      resultsPanel.classList.remove("hidden");
+
+      // Animar medidor semicircular (longitud arco = 251.2)
+      const arc = document.getElementById("gauge-progress");
+      const offset = 251.2 - (251.2 * percentage) / 100;
+      arc.style.strokeDashoffset = offset;
+
+      const badge = document.getElementById("level-badge");
+      const title = document.getElementById("level-title");
+      const desc = document.getElementById("level-description");
+
+      if (percentage >= 80) {
+        arc.style.stroke = "#34d399";
+        badge.textContent = "Dominio Sólido";
+        badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30";
+        title.textContent = "¡Excelente comprensión del tema!";
+        desc.textContent = `Acertaste ${correctCount} de ${total} preguntas. Demuestras un manejo claro y fundamentado de los conceptos clave.`;
+      } else if (percentage >= 50) {
+        arc.style.stroke = "#fbbf24";
+        badge.textContent = "Nivel en Proceso";
+        badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-400/30";
+        title.textContent = "Vas por buen camino, pero puedes afianzar detalles";
+        desc.textContent = `Acertaste ${correctCount} de ${total} preguntas. Revisa las tarjetas de memoria en el Paso 2 para consolidar el tema.`;
+      } else {
+        arc.style.stroke = "#f87171";
+        badge.textContent = "Nivel Inicial";
+        badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-400/30";
+        title.textContent = "Conviene repasar las fuentes antes de continuar";
+        desc.textContent = `Acertaste ${correctCount} de ${total} preguntas. Vuelve al Paso 1 y 2 para leer la síntesis verificada con calma.`;
+      }
+
+      document.getElementById("score-percentage").textContent = `${percentage}%`;
+      document.getElementById("reinforce-topics").textContent =
+        weakSubtopics.length > 0 ? Array.from(new Set(weakSubtopics)).join(" · ") : "Ninguno, ¡excelente dominio!";
+      document.getElementById("test-breakdown-list").innerHTML = breakdownHTML.join("");
+
+      resultsPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function goToStep(stepNumber) {
+      currentStep = stepNumber;
+      document.querySelectorAll(".step-panel").forEach((el, idx) => {
+        el.classList.toggle("hidden", idx + 1 !== stepNumber);
+      });
+
+      document.querySelectorAll(".step-tab").forEach((btn, idx) => {
+        const isActive = idx + 1 === stepNumber;
+        if (isActive) {
+          btn.className = "step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-white text-indigo-900 shadow-sm";
+          btn.querySelector("span:first-child").className = "w-5 h-5 rounded-full bg-indigo-600 text-white text-[11px] flex items-center justify-center font-bold";
+        } else {
+          btn.className = "step-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition text-indigo-200 hover:bg-white/10";
+          btn.querySelector("span:first-child").className = "w-5 h-5 rounded-full bg-white/15 text-white text-[11px] flex items-center justify-center font-bold";
+        }
+      });
+
+      window.scrollTo({ top: document.getElementById("workspace-container").offsetTop - 90, behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
